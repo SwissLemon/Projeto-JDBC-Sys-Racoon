@@ -149,7 +149,11 @@ public class CadastarProduto extends JFrame {
 		imagem_lbl.setBounds(236, 147, 150, 14);
 		contentPane.add(imagem_lbl);
 		
-		imagemAparece_lbl = new JLabel("sem imagem");
+		imagemAparece_lbl = new JLabel("");
+		imagemAparece_lbl.setToolTipText("(Opcional)");
+		ImageIcon imageIcon = new ImageIcon("C:\\Users\\ESTG018\\eclipse-workspace\\COISO2\\img\\Excavation_I.png");
+		image = imageIcon.getImage().getScaledInstance(150, 150, Image.SCALE_DEFAULT);
+		imagemAparece_lbl.setIcon(new ImageIcon(image));
 		imagemAparece_lbl.setHorizontalAlignment(SwingConstants.CENTER);
 		imagemAparece_lbl.setBounds(236, 170, 150, 150);
 		contentPane.add(imagemAparece_lbl);
@@ -178,7 +182,7 @@ public class CadastarProduto extends JFrame {
 		
 		aviso_lbl = new JLabel("");
 		aviso_lbl.setHorizontalAlignment(SwingConstants.CENTER);
-		aviso_lbl.setBounds(666, 400, 239, 22);
+		aviso_lbl.setBounds(617, 400, 288, 22);
 		contentPane.add(aviso_lbl);
 		
 		cadastrarProduto_btn = new JButton("Cadastrar produto");

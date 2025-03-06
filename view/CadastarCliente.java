@@ -7,10 +7,9 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.List;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,14 +17,14 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
-import model.ValidacoesProduto;
-import dao.CadastrarProdutoDAO;
-import dao.DepositosDAO;
-import model.Produto;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JComboBox;
+import dao.CadastrarClienteDAO;
+import model.Cliente;
+import model.ValidacoesCliente;
 
 public class CadastarCliente extends JFrame {
 
@@ -38,11 +37,8 @@ public class CadastarCliente extends JFrame {
 	private JTextField email_tf;
 	private JLabel senha_lbl;
 	private JTextField senha_tf;
-	
 	private JLabel status_lbl;
-	private JTextField status_tf;
 	private JLabel nascimento_lbl;
-	private JTextField nascimento_tf;
 	private JLabel imagem_lbl;
 	private JLabel imagemAparece_lbl;
 	private JFileChooser fileChooser;
@@ -52,6 +48,11 @@ public class CadastarCliente extends JFrame {
 	private JButton cadastrarCliente_btn;
 	private JButton abrirDeposito_btn;
 	private JButton volarMenu_btn;
+	private JTextField status_tf;
+	private JTextField dia_tf;
+	private JTextField mes_tf;
+	private JTextField ano_tf;
+	private JTextField dataNascimento;
 
 	/**
 	 * Launch the application.
@@ -121,19 +122,36 @@ public class CadastarCliente extends JFrame {
 		contentPane.add(status_lbl);
 		
 		status_tf = new JTextField();
-		status_tf.setColumns(10);
 		status_tf.setBounds(10, 284, 193, 20);
 		contentPane.add(status_tf);
-		
+		status_tf.setColumns(10);
 		
 		nascimento_lbl = new JLabel("Data de nascimento:");
+		nascimento_lbl.setToolTipText("Dia, mes e ano. Exp: 01 mar 2001");
 		nascimento_lbl.setBounds(10, 315, 150, 14);
 		contentPane.add(nascimento_lbl);
 		
-		nascimento_tf = new JTextField();
-		nascimento_tf.setColumns(10);
-		nascimento_tf.setBounds(10, 340, 193, 20);
-		contentPane.add(nascimento_tf);
+		dia_tf = new JTextField(2);
+		dia_tf.setToolTipText("Dia.");
+		dia_tf.setColumns(10);
+		dia_tf.setBounds(10, 340, 54, 20);
+		setFiltroNumerico(dia_tf, 2);
+		contentPane.add(dia_tf);
+		
+		mes_tf = new JTextField(3);
+		mes_tf.setToolTipText("Mês.");
+		mes_tf.setColumns(10);
+		mes_tf.setBounds(74, 340, 54, 20);
+		setFiltroTexto(mes_tf, 3);
+		contentPane.add(mes_tf);
+
+		// Para o campo de ano com placeholder "yyyy"
+		ano_tf = new JTextField(4);
+		ano_tf.setToolTipText("Ano.");
+		ano_tf.setColumns(10);
+		ano_tf.setBounds(138, 340, 65, 20);
+		setFiltroNumerico(ano_tf, 4);
+		contentPane.add(ano_tf);
 		
 		imagem_lbl = new JLabel("Imagem do cliente:");
 		imagem_lbl.setBounds(236, 91, 150, 14);
@@ -177,43 +195,39 @@ public class CadastarCliente extends JFrame {
 		contentPane.add(aviso_lbl);
 		
 		cadastrarCliente_btn = new JButton("Cadastrar cliente");
-//		cadastrarProduto_btn.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				
-//				boolean showCodigo = ValidacoesProduto.validarCodigo(codigo_tf.getText(), codigo_lbl);
-//				boolean showNome = ValidacoesProduto.validarNome(nome_tf.getText(), nome_lbl);
-//				boolean showDescricao = ValidacoesProduto.validarDescricao(descricao_ep.getText(), descricao_lbl);
-//				boolean showImagem = ValidacoesProduto.validarImagem(fileChooser, imagem_lbl);
-//				boolean showDeposito = ValidacoesProduto.validarDeposito(depositos_box, deposito_lbl);
-//				boolean showCusto = ValidacoesProduto.validarCusto(status_tf.getText(), status_lbl);
-//				boolean showValor = ValidacoesProduto.validarValor(nascimento_tf.getText(), nascimento_lbl);
-//
-//                if (showCodigo == true && showNome == true && showDescricao == true && showImagem == true && 
-//                showDeposito == true && showCusto == true && showValor == true) {
-//                    Produto produto = new Produto();
-//                    produto.setCodigo(codigo_tf.getText());
-//                    produto.setNome(nome_tf.getText());
-//                    produto.setDescricao(descricao_ep.getText());
-//                    produto.setImagem(image);
-//                    produto.setDeposito(depositos_box.getSelectedItem().toString());
-//                    produto.setCusto(Double.parseDouble(status_tf.getText()));
-//                    produto.setValor(Double.parseDouble(nascimento_tf.getText()));
-//
-//                    try {
-//						if (CadastrarProdutoDAO.conectarCadastro(produto)) {
-//							aviso_lbl.setForeground(new Color(0, 204, 0));
-//							aviso_lbl.setText("Produto cadastrado com sucesso.");
-//						} else {
-//							aviso_lbl.setForeground(new Color(204, 0, 0));
-//							aviso_lbl.setText("Falha ao cadastrar produto.");
-//						}
-//					} catch (ClassNotFoundException | SQLException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//                }
-//			}
-//		});
+		cadastrarCliente_btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				boolean showNome = ValidacoesCliente.validarNome(nome_tf.getText(), nome_lbl);
+				boolean showEmail = ValidacoesCliente.validarEmail(email_tf.getText(), email_lbl);
+				boolean showSenha = ValidacoesCliente.validarSenha(senha_tf.getText(), senha_lbl);
+				boolean showStatus = ValidacoesCliente.validarStatus( status_tf.getText(), status_lbl);
+				boolean showDataNascimento = ValidacoesCliente.validarDataNascimento(dia_tf.getText(), mes_tf.getText(), ano_tf.getText(), nascimento_lbl);
+				boolean showFoto = ValidacoesCliente.validarFoto(fileChooser, imagem_lbl);
+				
+                if (showNome == true && showEmail == true && showSenha == true && showStatus == true && showDataNascimento == true && showFoto == true) {
+                	Cliente cliente = new Cliente();
+                	cliente.setNome(nome_tf.getText());
+                	cliente.setEmail(email_tf.getText());
+                	cliente.setSenha(senha_tf.getText());;
+                	cliente.setStatus(Integer.parseInt(status_tf.getText()));
+            		cliente.setDataNascimento(dataNascimento.getText());
+
+                    try {
+						if (CadastrarClienteDAO.conectarCliente(cliente)) {
+							aviso_lbl.setForeground(new Color(0, 204, 0));
+							aviso_lbl.setText("Cliente cadastrado com sucesso.");
+						} else {
+							aviso_lbl.setForeground(new Color(204, 0, 0));
+							aviso_lbl.setText("Falha ao cadastrar cliente.");
+						}
+					} catch (ClassNotFoundException | SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+                }
+			}
+		});
 		cadastrarCliente_btn.setBounds(236, 339, 150, 23);
 		contentPane.add(cadastrarCliente_btn);
 
@@ -244,5 +258,49 @@ public class CadastarCliente extends JFrame {
 		});
 		volarMenu_btn.setBounds(915, 339, 150, 23);
 		contentPane.add(volarMenu_btn);
+		
+
+		
+
+		
+
+		
+
 	}
+	
+	private static void setFiltroNumerico(JTextField textField, int maxLength) {
+        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string.matches("\\d+") && (fb.getDocument().getLength() + string.length() <= maxLength)) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text.matches("\\d+") && (fb.getDocument().getLength() - length + text.length() <= maxLength)) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+    }
+	
+	private static void setFiltroTexto(JTextField textField, int maxLength) {
+        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string.matches("[a-zA-Z]+") && (fb.getDocument().getLength() + string.length() <= maxLength)) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text.matches("[a-zA-Z]+") && (fb.getDocument().getLength() - length + text.length() <= maxLength)) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+    }
 }

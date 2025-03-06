@@ -1,5 +1,6 @@
 package model;
 
+import java.awt.Image;
 import java.util.Date;
 
 public class Cliente {
@@ -8,7 +9,8 @@ public class Cliente {
 	private String email;
 	private String senha;	
 	private int status;
-	private Date dataNascimento;
+	private String dataNascimento;
+	private Image foto;
 	private String dataCriacao;
 	private String dultimoLogin;
 	
@@ -42,11 +44,17 @@ public class Cliente {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public Date getDataNascimento() {
+	public String getDataNascimento() {
 		return dataNascimento;
 	}
-	public void setDataNascimento(Date dataNascimento) {
+	public void setDataNascimento(String dataNascimento) {
 		this.dataNascimento = dataNascimento;
+	}
+	public Image getFoto() {
+		return foto;
+	}
+	public void setFoto(Image foto) {
+		this.foto = foto;
 	}
 	public String getDataCriacao() {
 		return dataCriacao;
