@@ -1,0 +1,167 @@
+create table estoque(
+id numeric(6) not null,
+codigo varchar2(6) default '' not null,
+nome varchar2(200) default '' not null,
+descricao varchar2(600) default '',
+imagem blob,
+deposito varchar2(100) default '' not null,
+custo numeric(10,2) default 0 not null,
+valor numeric(10,2) default 0 not null,
+data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+create table depositos(
+id numeric(6) not null,
+deposito varchar2(100) default '' not null,
+cep varchar2(9) default '' not null
+);
+
+create table filtros(
+id numeric(6) not null,
+filtro varchar2(100)
+);
+
+create table clientes(
+id numeric(6) not null,
+nome varchar2(70) default '' not null,
+email varchar2(70) default '' not null,
+senha varchar2(40) default '' not null,
+status number(1) default 1 not null,
+dataNascimento date not null,
+foto blob,
+dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ultimoLogin TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+drop table clientes;
+
+alter table estoque add constraint PK_ESTOQUE primary key (id);
+
+--ALTER TABLE estoque
+--ADD CONSTRAINT FK_ESTOQUE_DEPOSITO
+--FOREIGN KEY (deposito)
+--REFERENCES depositos(id)
+--ON DELETE CASCADE; -- Se um depósito for removido, os registros no estoque também serão removidos.
+
+alter table depositos add constraint PK_DEPOSITO primary key (id);
+
+alter table filtros add constraint PK_FILTROS primary key (id);
+
+alter table clientes add constraint PK_CLIENTESS primary key (id);
+
+-- criação de uma FK
+
+alter table ticketsAula add constraint ref_ticketsAula_fk foreign key(cliente_ticket) references clientesAula (Codigo_Cliente);
+
+
+
+--criando uma sequence para estoque
+create sequence sq_id_estoque
+start with 1
+increment by 1
+maxvalue 999999
+minvalue 0
+nocache
+cycle;
+
+--criando uma sequence para depositos
+create sequence sq_id_depositos
+start with 1
+increment by 1
+maxvalue 999999
+minvalue 1
+nocache
+cycle;
+
+--DROP SEQUENCE sq_id_estoque;
+--DROP SEQUENCE sq_id_depositos;
+
+
+-- criando uma trigger para estoque
+create or replace trigger prox_id_estoque
+before insert on estoque
+       for each row
+       begin
+           select sq_id_estoque.nextval into :new.id from dual;
+       end;
+/
+
+-- criando uma trigger para depositos
+CREATE OR REPLACE TRIGGER prox_id_depositos
+   BEFORE INSERT ON depositos
+   FOR EACH ROW
+   BEGIN
+       SELECT sq_id_depositos.NEXTVAL INTO :NEW.id FROM dual;
+   END;
+/
+
+
+INSERT INTO depositos (deposito, cep) VALUES
+('0-Interno', '89251670');
+
+INSERT INTO depositos (deposito, cep) VALUES
+('1-Homago', '89258000');
+-- table space: espaço que tenho para trabalhar
+
+select * from estoque;
+
+select * from depositos;
+
+select * from filtros;
+
+select deposito from depositos;
+
+INSERT INTO estoque (id, codigo, deposito_id, nome, descricao, custo, valor)
+VALUES (1, 'ABC123', 1, 'Produto Teste', 'Descrição do produto', 10.00, 15.00);
+
+INSERT INTO filtros (id, filtro)
+VALUES (5, 'preço');
+(1, 'Deposito');
+(2, 'Código');
+(3, 'Nome');
+(4, 'Custo');
+(5, 'preço');
+
+INSERT INTO clientes (id,nome,email,senha,dataNascimento,status)
+values (1, 'Albert', 'Albert@gmail.com', '123456', '04-mar-2025', 1);
+
+SELECT * FROM clientes;
+--Aula 4
+select * from SYS.gv_$SESSION;
+
+CREATE OR REPLACE TRIGGER INTER_TR_LOG
+AFTER INSERT OR DELETE OR UPDATE
+ON CLIENTES
+FOR EACH ROW
+DECLARE
+    ws_usuario_rede    varchar2(20);
+    ws_maquina_rede    varchar(40);
+    ws_aplicativo      varchar(20);
+    ws_sid             number(9);
+   
+BEGGIN
+-- Dados do usuario logado
+SELECT SUBSTR(OSUSER,1,20), SUBSTR(MACHINE,1,40), SUBSTR(PROGRAM,1,20), SID
+INTO WS_USUARIO_REDE, WS_MAQUINA_REDE, WS_APLICATIVO, WS_SID
+FROM SYS.GV_$SESSION
+WHERE AUDSID = USERENV('SESSIONID')
+      AND INST_ID = USERNV('INSTANCE')
+      AND ROWNUM < 2;
+      
+IF INSERTING
+THEN
+   BEGIN
+   
+      INSERT INTO CLIENTES_LOG (
+             TIPO_OCORR, /*0*/
+             DATA_OCORR, /*1*/
+             HORA_OCORR, /*2*/
+             USUARIO_REDE, /*3*/
+             MAQUINA_REDE, /*4*/
+             APLICACAO, /*5*/
+             NOME_CLIENTE_OLD, /*6*/
+             
+-------
+
+
