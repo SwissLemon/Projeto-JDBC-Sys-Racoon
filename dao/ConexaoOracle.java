@@ -19,6 +19,10 @@ public class ConexaoOracle {
         this.idConexao = idConexao;
     }
 
+    //pool de coneção com o oracle
+    // DAO -> repository 
+    // retorno de objeto
+    
     // Conectar ao Oracle
     public void conectar() throws ClassNotFoundException, SQLException {
         // Carregar driver do Oracle

@@ -12,6 +12,27 @@ import model.Produto;
 
 public class MostrarProdutoDAO {
 	
+	//Um dao para inserção e puxação
+	// model -> service
+	// aonde tem regras de negocio
+	
+	// dao -> repository
+	// aonde não tem regras
+	
+	// o repositorio retorna um objeto - > DAO = data access object -> service
+	
+	// service ---> insert ---> repository
+	
+	// Service --- getProductsDAO = ArrayList --> DAO 
+	// DAO --- getProducts = Objeto do produto ---> Service
+	
+	// DAO não tera regras, apenas validações
+	
+	// sevice ---> *ArrayList* ---> view : errado, falta a camada DTO, sem ela a segurança do sistema é comprometida
+	
+	// service ---> DTO = Data Transfer Object ---> view
+	// DE / PARA = saldoConta / saldoContaUsuario
+	
 	public ArrayList<Produto> mostrarEstoque() throws ClassNotFoundException, SQLException {
 		ConexaoOracle conexao = new ConexaoOracle();
 	    conexao.conectar();
